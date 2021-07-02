@@ -20,5 +20,5 @@ class TestFirstAPI:
             expected_response_text = "Hello, someone"
         else:
             expected_response_text = f"Hello, {name}"
-        actual_respnse_text = response_dict["answer"]
-        assert actual_respnse_text == expected_response_text, "Actual text in the response is not correct"
+        actual_response_text = response_dict["answer"]
+        assert actual_response_text == expected_response_text, "Actual text in the response is not correct"
