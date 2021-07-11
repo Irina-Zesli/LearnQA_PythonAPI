@@ -24,7 +24,7 @@ class TestUserGet(BaseCase):
         response2 = requests.get(
             f"https://playground.learnqa.ru/api/user/{user_from_auth_method}",
             headers={"x-csrf-token": token},
-            cookies ={"auth_sid": auth_sid}
+            cookies={"auth_sid": auth_sid}
         )
 
         expected_fields = ["username", "email", "firstName", "lastName"]
