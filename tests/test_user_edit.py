@@ -16,16 +16,15 @@ class TestUserEdit(BaseCase):
         self.password = register_data['password']
         self.user_id = self.get_json_value(response1, "id")
         self.username = register_data['username']
-
-    def test_edit_just_created_user(self):
-
-        #LOGIN 1st user
-        login_data = {
+        self.login_data = {
             'email': self.email,
             'password': self.password
         }
 
-        response2 = requests.post("https://playground.learnqa.ru/api/user/login", data=login_data)
+    def test_edit_just_created_user(self):
+
+        #LOGIN 1st user
+        response2 = requests.post("https://playground.learnqa.ru/api/user/login", data=self.login_data)
         auth_sid = self.get_cookie(response2, "auth_sid")
         token = self.get_header(response2, "x-csrf-token")
 
@@ -63,7 +62,7 @@ class TestUserEdit(BaseCase):
         #print(response2.content)
         Assertions.assert_content(response2, "Auth token not supplied")
 
-        # GET
+        # GET 1st user
 
         response3 = requests.get(f"https://playground.learnqa.ru/api/user/{self.user_id}")
 
@@ -78,17 +77,13 @@ class TestUserEdit(BaseCase):
     def test_edit_auth_as_another_user(self):
 
         # LOGIN 1st user
-        login_data = {
-            'email': self.email,
-            'password': self.password
-        }
 
-        response2 = requests.post("https://playground.learnqa.ru/api/user/login", data=login_data)
+        response2 = requests.post("https://playground.learnqa.ru/api/user/login", data=self.login_data)
         auth_sid = self.get_cookie(response2, "auth_sid")
         token = self.get_header(response2, "x-csrf-token")
 
         # REGISTER 2nd user
-        register_data = self.prepare_registration_data()
+        register_data = self.prepare_registration_data(username="user2")
         response3 = requests.post("https://playground.learnqa.ru/api/user", data=register_data)
         Assertions.assert_code_status(response3, 200)
         Assertions.assert_json_has_key(response3, "id")
@@ -144,6 +139,69 @@ class TestUserEdit(BaseCase):
             f"firstName shouldn't have changed"
         )
 
+    def test_edit_wrong_email(self):
+        # LOGIN 1st user
+        response2 = requests.post("https://playground.learnqa.ru/api/user/login", data=self.login_data)
+        auth_sid = self.get_cookie(response2, "auth_sid")
+        token = self.get_header(response2, "x-csrf-token")
 
+        # EDIT 1st user
+        new_email = "changed_email"
+
+        response3 = requests.put(f"https://playground.learnqa.ru/api/user/{self.user_id}",
+                                 headers={"x-csrf-token": token},
+                                 cookies={"auth_sid": auth_sid},
+                                 data={"email": new_email}
+                                 )
+        #print(response3.status_code)
+        Assertions.assert_code_status(response3, 400)
+        #print(response3.content)
+        Assertions.assert_content(response3, "Invalid email format")
+
+        # GET 1st user
+        response4 = requests.get(f"https://playground.learnqa.ru/api/user/{self.user_id}",
+                                 headers={"x-csrf-token": token},
+                                 cookies={"auth_sid": auth_sid}
+                                 )
+        #print(response4.text)
+        Assertions.assert_json_value_by_name(
+            response4,
+            "email",
+            self.email,
+            f"email shouldn't have changed"
+        )
+
+    def test_edit_short_firstname(self):
+        # LOGIN 1st user
+
+        response2 = requests.post("https://playground.learnqa.ru/api/user/login", data=self.login_data)
+        auth_sid = self.get_cookie(response2, "auth_sid")
+        token = self.get_header(response2, "x-csrf-token")
+
+        # EDIT 2-st user
+
+        new_firstName = "A"
+        response3 = requests.put(f"https://playground.learnqa.ru/api/user/{self.user_id}",
+                                     headers={"x-csrf-token": token},
+                                     cookies={"auth_sid": auth_sid},
+                                     data={"firstName": new_firstName}
+                                     )
+        #print(response3.status_code)
+        Assertions.assert_code_status(response3, 400)
+        #print(response3.content)
+        Assertions.assert_content(response3, '{"error":"Too short value for field firstName"}')
+
+        # GET 1st user
+        response4 = requests.get(f"https://playground.learnqa.ru/api/user/{self.user_id}",
+                                 headers={"x-csrf-token": token},
+                                 cookies={"auth_sid": auth_sid}
+                                 )
+        #print(response4.text)
+        Assertions.assert_json_value_by_name(
+            response4,
+            "firstName",
+            self.first_name,
+            f"firstName shouldn't have changed"
+        )
 
 
