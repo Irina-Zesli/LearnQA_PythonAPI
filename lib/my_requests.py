@@ -16,7 +16,7 @@ class MyRequests():
         return MyRequests._send(url, data, headers, cookies, 'PUT')
 
     @staticmethod
-    def detete(url: str, data: dict = None, headers: dict = None, cookies: dict = None):
+    def delete(url: str, data: dict = None, headers: dict = None, cookies: dict = None):
         return MyRequests._send(url, data, headers, cookies, 'DELETE')
 
     @staticmethod
