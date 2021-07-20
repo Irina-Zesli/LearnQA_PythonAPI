@@ -18,16 +18,17 @@ class TestUserAuth(BaseCase):
             'email': 'vinkotov@example.com',
             'password': '1234'
         }
-        #response1 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+
         response1 = MyRequests.post("/user/login", data=data)
 
         self.auth_sid = self.get_cookie(response1,"auth_sid")
         self.token = self.get_header(response1,"x-csrf-token")
         self.user_id_from_auth_method = self.get_json_value(response1,"user_id")
 
-    @allure.description("This test successfully authorize user by email and password")
+    @allure.description("This test successfully authorizes user by email and password")
     @allure.severity(allure.severity_level.BLOCKER)
-    @allure.title("1111")
+    @allure.testcase('https://exsample_tms.com/api/test-user-auth', name='Testcase 1')
+    @allure.feature('Positive')
     def test_auth_user(self):
 
         response2 = MyRequests.get(
@@ -44,7 +45,9 @@ class TestUserAuth(BaseCase):
 
     @allure.description("This test checks authorization status w/o sending auth cookie or token")
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Checking authorization with condition: {condition}")
+    @allure.testcase('https://exsample_tms.com/api/test-neg-auth', name='Testcase 2')
+    @allure.issue('http://www.mytesttracker.com/issue/2134')
+    @allure.feature('Negative')
     @pytest.mark.parametrize('condition', exclude_params)
     def test_negative_auth_check(self, condition):
 

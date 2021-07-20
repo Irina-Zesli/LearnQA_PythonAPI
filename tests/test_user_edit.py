@@ -3,6 +3,7 @@ from lib.base_case import BaseCase
 from lib.assertions import Assertions
 from lib.my_requests import MyRequests
 
+@allure.epic("Get user details cases")
 class TestUserEdit(BaseCase):
 
     def setup(self):
