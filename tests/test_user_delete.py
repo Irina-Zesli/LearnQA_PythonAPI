@@ -2,9 +2,16 @@ import requests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 from lib.my_requests import MyRequests
+import allure
 
+
+@allure.epic("Delete user cases")
 class TestUserDelete(BaseCase):
 
+    @allure.description("This test checks deleting user with id2")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/del-user-2', name='Testcase 41')
+    @allure.feature('Negative')
     def test_delete_user_2(self):
         data = {
             'email': 'vinkotov@example.com',
@@ -24,9 +31,7 @@ class TestUserDelete(BaseCase):
                                  )
 
         Assertions.assert_code_status(response2, 400)
-        #print(response2.status_code)
         Assertions.assert_content(response2, "Please, do not delete test users with ID 1, 2, 3, 4 or 5.")
-        #print(response2.content)
 
         # GET user 2
 
@@ -49,6 +54,10 @@ class TestUserDelete(BaseCase):
             f"User with email {user_id} doesn't exist (was deleted)"
         )
 
+    @allure.description("This test deletes a new user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/del-user-new', name='Testcase 42')
+    @allure.feature('Positive')
     def test_delete_new_user(self):
         # REGISTER user
         register_data = self.prepare_registration_data()
@@ -83,11 +92,14 @@ class TestUserDelete(BaseCase):
                                  cookies={"auth_sid": auth_sid},
                                  )
 
-        #print(response4.status_code)
+
         Assertions.assert_code_status(response4, 404)
-        #print(response4.content)
         Assertions.assert_content(response4, "User not found")
 
+    @allure.description("This test checks deleting user, when another user was auth")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/del-user-auth-another', name='Testcase 43')
+    @allure.feature('Negative')
     def test_delete_auth_as_another_user(self):
         # REGISTER 1st user
         register_data = self.prepare_registration_data()

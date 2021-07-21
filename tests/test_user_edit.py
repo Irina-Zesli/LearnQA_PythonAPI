@@ -2,8 +2,9 @@ import requests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 from lib.my_requests import MyRequests
+import allure
 
-@allure.epic("Get user details cases")
+@allure.epic("Edit user cases")
 class TestUserEdit(BaseCase):
 
     def setup(self):
@@ -23,6 +24,10 @@ class TestUserEdit(BaseCase):
             'password': self.password
         }
 
+    @allure.description("This test changes username of a just created user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/test-edit-just-created', name='Testcase 31')
+    @allure.feature('Positive')
     def test_edit_just_created_user(self):
 
         #LOGIN 1st user
@@ -55,13 +60,15 @@ class TestUserEdit(BaseCase):
             f"Wrong name of the user after edit"
         )
 
+    @allure.description("This test checks changing username of non-authorized user")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/test-edit-not-auth', name='Testcase 32')
+    @allure.feature('Negative')
     def test_edit_not_auth_user(self):
         #EDIT 1 st user
         new_username = "changed_name"
         response2 = MyRequests.put(f"/user/{self.user_id}", data={"username": new_username})
         Assertions.assert_code_status(response2, 400)
-        #print(response2.status_code)
-        #print(response2.content)
         Assertions.assert_content(response2, "Auth token not supplied")
 
         # GET 1st user
@@ -75,7 +82,10 @@ class TestUserEdit(BaseCase):
             f"Username shouldn't have changed"
         )
 
-
+    @allure.description("This test checks changing username and firstName of user, when another user was authorized")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/test-edit-auth-another', name='Testcase 33')
+    @allure.feature('Negative')
     def test_edit_auth_as_another_user(self):
 
         # LOGIN 1st user
@@ -141,6 +151,10 @@ class TestUserEdit(BaseCase):
             f"firstName shouldn't have changed"
         )
 
+    @allure.description("This test checks changing wrong email")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/test-edit-wrong-email', name='Testcase 34')
+    @allure.feature('Negative')
     def test_edit_wrong_email(self):
         # LOGIN 1st user
         response2 = MyRequests.post("/user/login", data=self.login_data)
@@ -155,9 +169,8 @@ class TestUserEdit(BaseCase):
                                  cookies={"auth_sid": auth_sid},
                                  data={"email": new_email}
                                  )
-        #print(response3.status_code)
+
         Assertions.assert_code_status(response3, 400)
-        #print(response3.content)
         Assertions.assert_content(response3, "Invalid email format")
 
         # GET 1st user
@@ -173,6 +186,10 @@ class TestUserEdit(BaseCase):
             f"email shouldn't have changed"
         )
 
+    @allure.description("This test checks changing short firstName")
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.testcase('https://exsample_tms.com/api/test-edit-wrong-firstName', name='Testcase 35')
+    @allure.feature('Negative')
     def test_edit_short_firstname(self):
         # LOGIN 1st user
 
@@ -188,9 +205,8 @@ class TestUserEdit(BaseCase):
                                      cookies={"auth_sid": auth_sid},
                                      data={"firstName": new_firstName}
                                      )
-        #print(response3.status_code)
+
         Assertions.assert_code_status(response3, 400)
-        #print(response3.content)
         Assertions.assert_content(response3, '{"error":"Too short value for field firstName"}')
 
         # GET 1st user
@@ -198,7 +214,7 @@ class TestUserEdit(BaseCase):
                                  headers={"x-csrf-token": token},
                                  cookies={"auth_sid": auth_sid}
                                  )
-        #print(response4.text)
+
         Assertions.assert_json_value_by_name(
             response4,
             "firstName",
